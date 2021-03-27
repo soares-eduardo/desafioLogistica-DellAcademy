@@ -10,10 +10,10 @@ public class App {
 
     static Scanner leia = new Scanner(System.in);
     static double custoKm = 0;
+    static HashMap<String, Integer> distancias = new HashMap<String, Integer>();
 
     public static void main(String[] args) throws Exception {
 
-        HashMap<String, Integer> distancias = new HashMap<String, Integer>();
         distancias.put("POA-TORRES", 150);
         distancias.put("TORRES-POA", 148);
         distancias.put("POA-CURITIBA", 650);
@@ -31,7 +31,7 @@ public class App {
                     configurarCustoKm();
                     break;
                 case 2:
-                    System.out.println(custoKm);
+                    consultarTrecho();
                     break;
                 case 3:
                     break;
@@ -46,6 +46,32 @@ public class App {
         while(custoKm <= 0){
             System.out.println("Valor inválido. Digite novamente.");
             custoKm = Double.parseDouble(leia.nextLine());
+        }
+    }
+
+    public static void consultarTrecho(){
+
+        String origem;
+        String destino;
+        double custoTotal = 0;
+        int distancia = 0;
+
+        System.out.println("Digite o nome da cidade de origem: ");
+        origem = leia.nextLine();
+        System.out.println("Digite o nome da cidade de destino: ");
+        destino = leia.nextLine();
+        String trecho = origem.toUpperCase() + "-" + destino.toUpperCase();
+
+        if(distancias.containsKey(trecho)){
+
+            distancia = distancias.get(trecho);
+            custoTotal = distancia * custoKm;
+
+            System.out.println("Distancia entre " + origem + " e " + destino + " é " + distancia + " km.");
+            System.out.println("Custo de R$ " + custoTotal);
+            
+        }else{
+            System.out.println("Trecho inválido");
         }
     }
 }
