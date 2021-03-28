@@ -1,3 +1,10 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -10,16 +17,48 @@ public class App {
 
     static Scanner leia = new Scanner(System.in);
     static double custoKm = 0;
-    static HashMap<String, Integer> distancias = new HashMap<String, Integer>();
+    
+    //HASH MAP
+    public static int linhasCSV = 24;
+    public static int colunasCSV = 24;
+    public static String separadorCSV = ";";
+    public static String nomeCSV = "DNIT-Distancias.csv";
+
+    // HashMap para armazenar os trechos lidos
+    public static HashMap<String, Integer> distancias = new HashMap<String, Integer>();
+
+    // Método que interpreta o CSV e armazena no hashmap o resultado
+    public static void interpretaCSV() throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(nomeCSV));
+
+        String linhaReader = null;
+
+        // Armazenamos a primeira linha(header) para montar o texto do trecho
+        String headers[] = (bufferedReader.readLine()).split(separadorCSV);
+
+        // Itera sobre todas as linhas e colunas
+        for (int linha = 0; linha < linhasCSV; linha ++) {
+            linhaReader = bufferedReader.readLine();
+            String str[] = linhaReader.split(separadorCSV);
+            for (int coluna = 0; coluna < colunasCSV; coluna++) {
+                // Monta a string que representa o trecho usando o header
+                String trecho = headers[coluna] + "-" + headers[linha];
+                // Relaciona o trecho com a distância e armazena no hashmap
+                distancias.put(trecho, Integer.parseInt(str[coluna]));
+            }
+        }
+        bufferedReader.close();
+    }
 
     public static void main(String[] args) throws Exception {
 
-        distancias.put("POA-TORRES", 150);
-        distancias.put("TORRES-POA", 148);
-        distancias.put("POA-CURITIBA", 650);
-        distancias.put("CURITIBA-POA", 645);
-        distancias.put("TORRES-FLORIPA", 765);
-        distancias.put("FLORIPA-TORRES", 780);
+        // Tenta efetuar a interpretação do CSV, caso contrário imprime erro e encerra
+        try {
+            interpretaCSV();
+        } catch (IOException e) {
+            System.out.println("Erro ao ler o CSV! Encerrando...");
+            System.exit(1); // Encerra a aplicação com erro
+        }
 
         int op = 0;
 
@@ -80,10 +119,6 @@ public class App {
         }
     }
 
-    // porto alegre, florianopolis, Curitiba
-    // [porto alegre,florianopolis,curitiba]
-    // [porto alegre-florianopolis,florianopolis-curitiba]
-
     public static void consultarRota() {
 
         String cidades;
@@ -93,14 +128,14 @@ public class App {
         System.out.println("Digite o nome de duas ou mais cidades separadas por virgula: ");
         cidades = leia.nextLine();
 
-        cidades = cidades.replaceAll("\\s", "");
+        //cidades = cidades.replaceAll("\\s", "");
 
-        String[] aux = cidades.split(",");
+        String[] aux = cidades.split(", ");
 
         for (int i = 0; i < aux.length - 1; i++) {
-            rota = aux[i].toUpperCase() + "-" + aux[i+1].toUpperCase();
+            rota = aux[i].toUpperCase() + "-" + aux[i + 1].toUpperCase();
             distanciaTotal += distancias.get(rota);
-            System.out.println(rota + " -> " + distancias.get(rota)); 
+            System.out.println(rota + " -> " + distancias.get(rota));
         }
 
         System.out.println("Distancia total: " + distanciaTotal);
@@ -110,7 +145,7 @@ public class App {
 
     }
 
-    public static double calcularKmDias(int km){
+    public static double calcularKmDias(int km) {
         double dias = (24 * km) / 238;
         return dias;
     }
